@@ -56,19 +56,17 @@ void SonarToFrameTask::updateHook()
 
 void SonarToFrameTask::configureLUT(base::samples::Sonar const& sonar)
 {
-    if (!(m_lut && m_lut->hasMatchingConfiguration(sonar, m_window_size))) {
-        m_lut = std::make_unique<SonarToImageLUT>(sonar, m_window_size);
+    if ((m_lut && m_lut->hasMatchingConfiguration(sonar, m_window_size))) {
+        return;
     }
+    m_lut = std::make_unique<SonarToImageLUT>(sonar, m_window_size);
 }
 
 void SonarToFrameTask::setImage(base::samples::Sonar const& sonar)
 {
     m_image = 0;
     for (unsigned int idx = 0; idx < sonar.bins.size(); idx++) {
-        m_lut->updateImage(m_image,
-            idx,
-            sonar.bins[idx] * 255,
-            sonar.bin_count);
+        m_lut->updateImage(m_image, idx, sonar.bins[idx] * 255, sonar.bin_count);
     }
     cv::cvtColor(m_image, m_grayscale_image, cv::COLOR_BGR2GRAY);
 }
