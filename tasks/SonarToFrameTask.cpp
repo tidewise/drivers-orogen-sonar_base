@@ -22,16 +22,6 @@ bool SonarToFrameTask::configureHook()
         return false;
     }
     m_window_size = _window_size.get();
-    m_image = Mat::zeros(m_window_size, m_window_size, CV_8UC3);
-    m_grayscale_image = Mat::zeros(m_window_size, m_window_size, CV_8UC1);
-
-    Frame* frame = new Frame(m_window_size,
-        m_window_size,
-        8U,
-        base::samples::frame::frame_mode_t::MODE_GRAYSCALE,
-        0,
-        0);
-    m_output_frame.reset(frame);
     return true;
 }
 
@@ -49,17 +39,37 @@ void SonarToFrameTask::updateHook()
     if (_sonar.read(sonar) != RTT::NewData) {
         return;
     }
-    configureLUT(sonar);
+    bool reconfigured = reconfigureLUT(sonar);
+    if (reconfigured) {
+        configureImagesAndFrame();
+    }
     setImage(sonar);
     outputFrame();
 }
 
-void SonarToFrameTask::configureLUT(base::samples::Sonar const& sonar)
+bool SonarToFrameTask::reconfigureLUT(base::samples::Sonar const& sonar)
 {
     if ((m_lut && m_lut->hasMatchingConfiguration(sonar, m_window_size))) {
-        return;
+        return false;
     }
     m_lut = std::make_unique<SonarToImageLUT>(sonar, m_window_size);
+    return true;
+}
+
+void SonarToFrameTask::configureImagesAndFrame()
+{
+    size_t window_height = m_lut->getWindowHeight();
+    size_t window_width = m_lut->getWindowWidth();
+    m_image = Mat::zeros(window_height, window_width, CV_8UC3);
+    m_grayscale_image = Mat::zeros(window_height, window_width, CV_8UC1);
+
+    Frame* frame = new Frame(window_width,
+        window_height,
+        8U,
+        base::samples::frame::frame_mode_t::MODE_GRAYSCALE,
+        0,
+        0);
+    m_output_frame.reset(frame);
 }
 
 void SonarToFrameTask::setImage(base::samples::Sonar const& sonar)

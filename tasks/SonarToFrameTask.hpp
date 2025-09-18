@@ -19,7 +19,8 @@ namespace sonar_base {
 
         void setImage(base::samples::Sonar const& sonar);
         void outputFrame();
-        void configureLUT(base::samples::Sonar const& sonar);
+        bool reconfigureLUT(base::samples::Sonar const& sonar);
+        void configureImagesAndFrame();
 
     public:
         SonarToFrameTask(std::string const& name = "sonar_base::SonarToFrameTask");
