@@ -2,10 +2,14 @@
   <description brief="">
   
   </description>
-  <author>/</author>
+  <author>Mateus Seixas/mateus.seixas@tidewise.io</author>
   <license></license>
   <url>http://</url>
   <logo>http://</logo>
   <depend package="base/cmake" />
   <depend package="drivers/sonar_base" />
+  <depend package="opencv" />
+  <test_depend name="tools/syskit" />
+
+  <tags>needs_opt</tags>
 </package>
